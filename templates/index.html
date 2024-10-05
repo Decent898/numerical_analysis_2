@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Root Finding Methods</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
+        <div class="md:flex">
+            <div class="p-8">
+                <div class="uppercase tracking-wide text-sm text-indigo-500 font-semibold">Root Finding Methods</div>
+                <form action="/" method="post" class="mt-4">
+                    <div class="mb-4">
+                        <label for="method" class="block text-gray-700 text-sm font-bold mb-2">Method:</label>
+                        <select name="method" id="method" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            <option value="bisection">Bisection</option>
+                            <option value="aitken">Aitken</option>
+                            <option value="newton">Newton</option>
+                            <option value="secant">Secant</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="tolerance" class="block text-gray-700 text-sm font-bold mb-2">Tolerance:</label>
+                        <input type="number" name="tolerance" id="tolerance" step="0.000001" value="0.0001" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    </div>
+                    <div class="mb-4">
+                        <label for="expression" class="block text-gray-700 text-sm font-bold mb-2">Expression:</label>
+                        <input type="text" name="expression" id="expression" placeholder="e.g., x**2 - 4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    </div>
+                    <div id="bisection-inputs" class="mb-4">
+                        <label for="a" class="block text-gray-700 text-sm font-bold mb-2">a:</label>
+                        <input type="number" name="a" id="a" step="0.1" value="0" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <label for="b" class="block text-gray-700 text-sm font-bold mb-2 mt-2">b:</label>
+                        <input type="number" name="b" id="b" step="0.1" value="2" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    </div>
+                    <div id="other-inputs" class="mb-4" style="display: none;">
+                        <label for="x0" class="block text-gray-700 text-sm font-bold mb-2">x0:</label>
+                        <input type="number" name="x0" id="x0" step="0.1" value="1" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <label for="x1" class="block text-gray-700 text-sm font-bold mb-2 mt-2">x1 (only for Secant method):</label>
+                        <input type="number" name="x1" id="x1" step="0.1" value="2" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                            Calculate
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('method').addEventListener('change', function() {
+            var method = this.value;
+            var bisectionInputs = document.getElementById('bisection-inputs');
+            var otherInputs = document.getElementById('other-inputs');
+            var x1Input = document.getElementById('x1');
+            
+            if (method === 'bisection') {
+                bisectionInputs.style.display = 'block';
+                otherInputs.style.display = 'none';
+            } else {
+                bisectionInputs.style.display = 'none';
+                otherInputs.style.display = 'block';
+                x1Input.style.display = method === 'secant' ? 'block' : 'none';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Root Finding Result</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="p-8">
+            <h1 class="text-2xl font-bold mb-4">Root Finding Result</h1>
+            <p class="mb-4">Expression: {{ expression }}</p>
+            <p class="mb-4">Approximate root: {{ root }}</p>
+            <h2 class="text-xl font-semibold mb-2">Steps:</h2>
+            <table class="table-auto w-full mb-4">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2">Step</th>
+                        <th class="px-4 py-2">Values</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for step in steps %}
+                    <tr>
+                        <td class="border px-4 py-2">{{ loop.index }}</td>
+                        <td class="border px-4 py-2">{{ step }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <h2 class="text-xl font-semibold mb-2">Visualization:</h2>
+            <img src="data:image/png;base64,{{ plot_url }}" alt="Root finding visualization" class="w-full">
+            <a href="/" class="mt-4 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Try Another Calculation
+            </a>
+        </div>
+    </div>
+</body>
+</html>
