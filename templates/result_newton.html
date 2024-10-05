@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>求根结果</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="p-8">
+            <h1 class="text-2xl font-bold mb-4">求根结果</h1>
+            <p class="mb-4">表达式: {{ expression }}</p>
+            <p class="mb-4">近似根: {{ root }}</p>
+            <h2 class="text-xl font-semibold mb-2">步骤:</h2>
+            <h5>注：表格统一显示小数点后八位，完整精度可鼠标靠近悬浮框查看</h5>
+            <table class="table-auto w-full mb-4">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2">迭代次数</th>
+                        <th class="px-4 py-2">x0</th>
+                        <th class="px-4 py-2">f(x0)</th>
+                        <th class="px-4 py-2">f'(x0)</th>
+                        <th class="px-4 py-2">x1</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for step in steps %}
+                    <tr>
+                        <td class="border px-4 py-2">{{ loop.index }}</td>
+                        <td class="border px-4 py-2" title="{{ step[0] }}">{{ '%.8f' % step[0] }}</td>
+                        <td class="border px-4 py-2" title="{{ step[1] }}">{{ '%.8f' % step[1] }}</td>
+                        <td class="border px-4 py-2" title="{{ step[2] }}">{{ '%.8f' % step[2] }}</td>
+                        <td class="border px-4 py-2" title="{{ step[3] }}">{{ '%.8f' % step[3] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <h2 class="text-xl font-semibold mb-2">可视化:</h2>
+            <img src="data:image/png;base64,{{ plot_url }}" alt="求根可视化" class="w-full">
+            <canvas id="chart"></canvas>
+            <button id="resetZoom"
+                class="mt-4 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">重置</button>
+
+            <a href="/" class="mt-4 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                再试一次
+            </a>
+        </div>
+    </div>
+</body>
+
+</html>
+
+<script>
+    // 从后端传递的 JSON 数据
+    var chartData = {{ chart_data | safe }};
+
+    // 提取数据
+    var functionPoints = chartData.function_points.map(point => ({ x: point.x, y: point.y }));
+    var rootPoint = chartData.root_point;
+    var steps = chartData.steps;
+
+    // 渲染 Chart.js 图表
+    var ctx = document.getElementById('chart').getContext('2d');
+    var chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [
+                {
+                    label: 'f(x)',
+                    data: functionPoints,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    fill: false
+                },
+                {
+                    label: 'Root',
+                    data: [{ x: rootPoint.x, y: rootPoint.y }],
+                    pointBackgroundColor: 'green',
+                    pointRadius: 8,
+                    showLine: false
+                },
+                // 添加步骤信息
+                ...steps.map(step => ({
+                    label: `Iter ${step.iter}`,
+                    data: [
+                        { x: step.mid.x, y: step.mid.y }
+                    ],
+                    pointBackgroundColor: 'red',
+                    pointRadius: 5,
+                    showLine: false
+                }))
+            ]
+        },
+        options: {
+            scales: {
+                x: {
+                    type: 'linear',
+                    position: 'bottom'
+                }
+            },
+            responsive: true,
+            plugins: {
+                zoom: {
+                    pan: {
+                        enabled: true,  // 启用平移
+                        mode: 'xy',     // 允许在 x 和 y 方向上平移
+                    },
+                    zoom: {
+                        wheel: {
+                            enabled: true,  // 启用滚轮缩放
+                        },
+                        drag: {
+                            enabled: false  // 禁用拖拽缩放（可选）
+                        },
+                        pinch: {
+                            enabled: false  // 禁用双指缩放（触摸设备时启用此选项）
+                        },
+                        mode: 'xy',       // 允许在 x 和 y 方向上缩放
+                        speed: 0.1        // 缩放速度
+                    }
+                },
+                legend: {
+                    display: true
+                }
+            }
+        }
+    });
+
+    // 添加 passive 事件监听器
+    document.getElementById('chart').addEventListener('wheel', function (event) {
+        event.preventDefault();  // 防止默认滚动行为
+    }, { passive: true });
+
+    // 添加重置按钮（可选）
+    document.getElementById('resetZoom').addEventListener('click', function () {
+        chart.resetZoom();  // 调用 resetZoom 方法来重置缩放
+    });
+</script>

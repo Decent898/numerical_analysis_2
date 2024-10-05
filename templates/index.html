@@ -1,50 +1,68 @@
-
+<!-- templates/index.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Root Finding Methods</title>
+    <title>求根方法</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body class="bg-gray-100 p-8">
     <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
         <div class="md:flex">
             <div class="p-8">
-                <div class="uppercase tracking-wide text-sm text-indigo-500 font-semibold">Root Finding Methods</div>
-                <form action="/" method="post" class="mt-4">
-                    <div class="mb-4">
-                        <label for="method" class="block text-gray-700 text-sm font-bold mb-2">Method:</label>
-                        <select name="method" id="method" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                            <option value="bisection">Bisection</option>
-                            <option value="aitken">Aitken</option>
-                            <option value="newton">Newton</option>
-                            <option value="secant">Secant</option>
+                <h1 class="text-2xl font-bold mb-4">求根方法</h1>
+                <form action="/" method="post" class="space-y-4">
+                    <div>
+                        <label for="expression" class="block text-sm font-medium text-gray-700">函数 f(x):</label>
+                        <input type="text" name="expression" id="expression" required
+                               class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                               placeholder="例如：x**3 - x - 2">
+                    </div>
+                    <div>
+                        <label for="method" class="block text-sm font-medium text-gray-700">方法：</label>
+                        <select name="method" id="method" required
+                                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                            <option value="bisection">二分法</option>
+                            <option value="aitken">埃特金法</option>
+                            <option value="newton">牛顿法</option>
+                            <option value="secant">弦截法</option>
                         </select>
                     </div>
-                    <div class="mb-4">
-                        <label for="tolerance" class="block text-gray-700 text-sm font-bold mb-2">Tolerance:</label>
-                        <input type="number" name="tolerance" id="tolerance" step="0.000001" value="0.0001" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <div>
+                        <label for="tolerance" class="block text-sm font-medium text-gray-700">容差：</label>
+                        <input type="number" name="tolerance" id="tolerance" required
+                               class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                               step="0.000001" value="0.0001">
                     </div>
-                    <div class="mb-4">
-                        <label for="expression" class="block text-gray-700 text-sm font-bold mb-2">Expression:</label>
-                        <input type="text" name="expression" id="expression" placeholder="e.g., x**2 - 4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <div id="bisection-inputs">
+                        <div>
+                            <label for="a" class="block text-sm font-medium text-gray-700">a：</label>
+                            <input type="number" name="a" id="a" step="0.1" value="0"
+                                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="b" class="block text-sm font-medium text-gray-700">b：</label>
+                            <input type="number" name="b" id="b" step="0.1" value="2"
+                                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
                     </div>
-                    <div id="bisection-inputs" class="mb-4">
-                        <label for="a" class="block text-gray-700 text-sm font-bold mb-2">a:</label>
-                        <input type="number" name="a" id="a" step="0.1" value="0" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        <label for="b" class="block text-gray-700 text-sm font-bold mb-2 mt-2">b:</label>
-                        <input type="number" name="b" id="b" step="0.1" value="2" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <div id="other-inputs" style="display: none;">
+                        <div>
+                            <label for="x0" class="block text-sm font-medium text-gray-700">x0：</label>
+                            <input type="number" name="x0" id="x0" step="0.1" value="1"
+                                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                        <div id="x1-input" style="display: none;">
+                            <label for="x1" class="block text-sm font-medium text-gray-700">x1（仅用于弦截法）：</label>
+                            <input type="number" name="x1" id="x1" step="0.1" value="2"
+                                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
                     </div>
-                    <div id="other-inputs" class="mb-4" style="display: none;">
-                        <label for="x0" class="block text-gray-700 text-sm font-bold mb-2">x0:</label>
-                        <input type="number" name="x0" id="x0" step="0.1" value="1" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        <label for="x1" class="block text-gray-700 text-sm font-bold mb-2 mt-2">x1 (only for Secant method):</label>
-                        <input type="number" name="x1" id="x1" step="0.1" value="2" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-                            Calculate
+                    <div>
+                        <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            计算
                         </button>
                     </div>
                 </form>
@@ -56,7 +74,7 @@
             var method = this.value;
             var bisectionInputs = document.getElementById('bisection-inputs');
             var otherInputs = document.getElementById('other-inputs');
-            var x1Input = document.getElementById('x1');
+            var x1Input = document.getElementById('x1-input');
             
             if (method === 'bisection') {
                 bisectionInputs.style.display = 'block';

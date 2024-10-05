@@ -1,40 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Root Finding Result</title>
+    <title>求根结果</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-gray-100 p-8">
     <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
         <div class="p-8">
-            <h1 class="text-2xl font-bold mb-4">Root Finding Result</h1>
-            <p class="mb-4">Expression: {{ expression }}</p>
-            <p class="mb-4">Approximate root: {{ root }}</p>
-            <h2 class="text-xl font-semibold mb-2">Steps:</h2>
+            <h1 class="text-2xl font-bold mb-4">求根结果</h1>
+            <p class="mb-4">表达式: {{ expression }}</p>
+            <p class="mb-4">近似根: {{ root }}</p>
+            <h2 class="text-xl font-semibold mb-2">步骤:</h2>
+            <h5>注：表格统一显示小数点后八位，完整精度可鼠标靠近悬浮框查看</h5>
             <table class="table-auto w-full mb-4">
                 <thead>
                     <tr>
-                        <th class="px-4 py-2">Step</th>
-                        <th class="px-4 py-2">Values</th>
+                        <th class="px-4 py-2">迭代次数</th>
+                        <th class="px-4 py-2">左端点 (l)</th>
+                        <th class="px-4 py-2">右端点 (r)</th>
+                        <th class="px-4 py-2">中点 (mid)</th>
+                        <th class="px-4 py-2">f(中点)</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for step in steps %}
                     <tr>
                         <td class="border px-4 py-2">{{ loop.index }}</td>
-                        <td class="border px-4 py-2">{{ step }}</td>
+                        <td class="border px-4 py-2" title="{{ step[0] }}">{{ '%.8f' % step[0] }}</td>
+                        <td class="border px-4 py-2" title="{{ step[1] }}">{{ '%.8f' % step[1] }}</td>
+                        <td class="border px-4 py-2" title="{{ step[2] }}">{{ '%.8f' % step[2] }}</td>
+                        <td class="border px-4 py-2" title="{{ step[3] }}">{{ '%.8f' % step[3] }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            <h2 class="text-xl font-semibold mb-2">Visualization:</h2>
-            <img src="data:image/png;base64,{{ plot_url }}" alt="Root finding visualization" class="w-full">
+            <h2 class="text-xl font-semibold mb-2">可视化:</h2>
+            <img src="data:image/png;base64,{{ plot_url }}" alt="求根可视化" class="w-full">
             <a href="/" class="mt-4 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Try Another Calculation
+                再试一次
             </a>
         </div>
     </div>
 </body>
+
 </html>
