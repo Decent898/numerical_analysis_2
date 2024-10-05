@@ -115,28 +115,35 @@ def plot_function_interactive(func, x, root, steps, method):
                 ]
             })
 
-    elif method == 'Newton':
+    if method == 'Newton':
         for i, step in enumerate(steps[:-1]):
             x0, fx0, dfx0, x1 = step
+
+            # 计算切线与x轴的交点
+            x_intersection = x0 - fx0 / dfx0
+
+            # 生成切线的点：从x0到x轴的交点
+            x_tangent = np.linspace(x0, x_intersection, 100)
+            y_tangent = fx0 + dfx0 * (x_tangent - x0)
+
+            # 保存每次迭代的切线和根的近似
             chart_data['steps'].append({
                 'iter': i + 1,
-                'tangent': [
-                    {'x': x0, 'y': fx0},
-                    {'x': x1, 'y': 0}
-                ]
+                'tangent': [{'x': xt, 'y': yt} for xt, yt in zip(x_tangent, y_tangent)],
+                'root_approx': {'x': x1, 'y': 0}  # 每次迭代得到的近似根
             })
 
-    elif method == 'Secant':
+    if method == 'Secant':
         for i, step in enumerate(steps[:-1]):
             x0, x1, fx0, fx1, x2 = step
+            
+            # 弦线：通过 x0 和 x1
             chart_data['steps'].append({
                 'iter': i + 1,
-                'secant': [
-                    {'x': x0, 'y': fx0},
-                    {'x': x1, 'y': fx1},
-                    {'x': x2, 'y': 0}
-                ]
+                'secant': [{'x': x0, 'y': fx0}, {'x': x1, 'y': fx1}],  # 弦线
+                'root_approx': {'x': x2, 'y': 0}  # 弦线与x轴交点，即近似根
             })
+
 
     # 转换为 JSON 格式
     graph_json = json.dumps(chart_data)

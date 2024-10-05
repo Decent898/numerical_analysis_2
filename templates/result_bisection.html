@@ -56,6 +56,7 @@
             </table>
 
             <h2 class="text-xl font-semibold mb-2">可视化:</h2>
+            <img src="data:image/png;base64,{{ plot_url }}" alt="求根可视化" class="w-full">
             <canvas id="chart"></canvas>
             <button id="resetZoom"
                 class="mt-4 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">重置</button>
@@ -90,10 +91,11 @@
                     data: functionPoints,
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 2,
-                    fill: false
+                    fill: false,
+                    pointRadius: 0
                 },
                 {
-                    label: 'Root',
+                    label: '根',
                     data: [{ x: rootPoint.x, y: rootPoint.y }],
                     pointBackgroundColor: 'green',
                     pointRadius: 8,
@@ -101,7 +103,7 @@
                 },
                 // 添加步骤信息
                 ...steps.map(step => ({
-                    label: `Iter ${step.iter}`,
+                    label: `迭代${step.iter}`,
                     data: [
                         { x: step.mid.x, y: step.mid.y }
                     ],
