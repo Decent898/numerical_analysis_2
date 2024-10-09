@@ -28,4 +28,4 @@ def f(x, expr):
         result = eval(expr, {"__builtins__": {}}, safe_dict)
         return float(result)
     except Exception as e:
-        raise ValueError(f"Unable to evaluate expression at x = {x}: {e}")
+        raise ValueError(f"无法在 x = {x} 处计算表达式: {e}")

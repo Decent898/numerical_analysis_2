@@ -30,8 +30,14 @@
 
             <h2 class="text-xl font-semibold mb-2">步骤:</h2>
             <h5>注：表格统一显示小数点后八位，完整精度可鼠标靠近悬浮框查看</h5>
-
-            <!-- 表格显示每次迭代的详细步骤，包含悬浮显示完整精度的功能 -->
+            <br>
+            <h4>这里，a={{steps[0][0]}}，b={{steps[0][1]}}</h4>
+            <!-- 打印f(a),f(b)大于零小于零情况 -->
+            {% if steps[0][3] > 0 %}
+            <h4>初始区间[a,b]中，f(a) > 0, f(b) < 0</h4>
+                    {% elif steps[0][3] < 0 %} <h4>初始区间[a,b]中，f(a) < 0, f(b)> 0</h4>
+            {% endif %}
+            <br>
             <table class="table-auto w-full mb-4">
                 <thead>
                     <tr>
@@ -46,10 +52,19 @@
                     {% for step in steps %}
                     <tr>
                         <td class="border px-4 py-2">{{ loop.index }}</td>
-                        <td class="border px-4 py-2" title="{{ step[0] }}">{{ '%.8f' % step[0] }}</td>
-                        <td class="border px-4 py-2" title="{{ step[1] }}">{{ '%.8f' % step[1] }}</td>
-                        <td class="border px-4 py-2" title="{{ step[2] }}">{{ '%.8f' % step[2] }}</td>
-                        <td class="border px-4 py-2" title="{{ step[3] }}">{{ '%.8f' % step[3] }}</td>
+                        <td class="border px-4 py-2" title="{{ step[0] }}">{{step[0] }}</td>
+                        <td class="border px-4 py-2" title="{{ step[1] }}">{{step[1] }}</td>
+                        <td class="border px-4 py-2" title="{{ step[2] }}">{{step[2] }}</td>
+                        <!-- <td class="border px-4 py-2" title="{{ step[3] }}">{{ '%.8f' % step[3] }}</td> -->
+                        <!-- 判断f大于0小于0情况： -->
+                        {% if step[3] > 0 %}
+                        <td class="border px-4 py-2" title="{{ step[3] }}">f({{ step[2] }}) > 0</td>
+                        {% elif step[3] < 0 %}
+                        <td class="border px-4 py-2" title="{{ step[3] }}">f({{ step[2] }}) < 0</td>
+                        {% else %}
+                        <td class="border px-4 py-2" title="{{ step[3] }}">f({{ step[2] }}) = 0</td>
+                        {% endif %}
+
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -72,15 +87,12 @@
 </html>
 
 <script>
-    // 从后端传递的 JSON 数据
     var chartData = {{ chart_data | safe }};
 
-    // 提取数据
     var functionPoints = chartData.function_points.map(point => ({ x: point.x, y: point.y }));
     var rootPoint = chartData.root_point;
     var steps = chartData.steps;
 
-    // 渲染 Chart.js 图表
     var ctx = document.getElementById('chart').getContext('2d');
     var chart = new Chart(ctx, {
         type: 'line',
@@ -101,7 +113,6 @@
                     pointRadius: 8,
                     showLine: false
                 },
-                // 添加步骤信息
                 ...steps.map(step => ({
                     label: `迭代${step.iter}`,
                     data: [
@@ -129,15 +140,15 @@
                     },
                     zoom: {
                         wheel: {
-                            enabled: true,  // 启用滚轮缩放
+                            enabled: true,  // 滚轮缩放
                         },
                         drag: {
-                            enabled: false  // 禁用拖拽缩放（可选）
+                            enabled: false  // 拖拽缩放
                         },
                         pinch: {
-                            enabled: false  // 禁用双指缩放（触摸设备时启用此选项）
+                            enabled: false  // 双指缩放
                         },
-                        mode: 'xy',       // 允许在 x 和 y 方向上缩放
+                        mode: 'xy',       // 在 x 和 y 方向上缩放
                         speed: 0.1        // 缩放速度
                     }
                 },
@@ -148,13 +159,7 @@
         }
     });
 
-    // 添加 passive 事件监听器
-    document.getElementById('chart').addEventListener('wheel', function (event) {
-        event.preventDefault();  // 防止默认滚动行为
-    }, { passive: true });
-
-    // 添加重置按钮（可选）
     document.getElementById('resetZoom').addEventListener('click', function () {
-        chart.resetZoom();  // 调用 resetZoom 方法来重置缩放
+        chart.resetZoom();  // 重置缩放
     });
 </script>

@@ -9,7 +9,7 @@ from utils.plotting import plot_function
 from utils.plotting import plot_function_interactive
 import numpy as np
 import matplotlib
-matplotlib.use('Agg')  # 使用非图形界面的后端
+matplotlib.use('Agg')  # 非图形界面后端
 
 app = Flask(__name__)
 
@@ -44,10 +44,10 @@ def index():
                 x = np.linspace(min(x0, x1)-1, max(x0, x1)+1, 100)
                 template = 'result_secant.html'
             else:
-                return render_template('error.html', message="Invalid method selected.")
+                return render_template('error.html', message="无效方法选择。")
             
             if root is None:
-                return render_template('error.html', message="Method failed to converge. Try different initial values.")
+                return render_template('error.html', message="方法未能收敛。请输入不同的初值。")
             
             parsed_expr = parse_expression(expr)
             latex_expr = parsed_expr.replace('**', '^')  # Replace Python's power operator with LaTeX's
@@ -67,9 +67,9 @@ def index():
         except ValueError as e:
             return render_template('error.html', message=str(e))
         except Exception as e:
-            return render_template('error.html', message=f"An unexpected error occurred: {str(e)}")
+            return render_template('error.html', message=f"严重错误： {str(e)}")
     
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run("10.171.149.10",debug=True,port=5516)

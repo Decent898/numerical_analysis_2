@@ -7,6 +7,16 @@ import plotly.graph_objects as go
 import plotly.io as pio
 import numpy as np
 import json
+# 中文支持
+plt.rcParams['font.sans-serif'] = ['SimHei']
+plt.rcParams['axes.unicode_minus'] = False
+
+dic = {
+    'Bisection': '二分法',
+    'Aitken': '埃特肯法',
+    'Secant': '割线法',
+    'Newton': '牛顿切线法'
+}
 
 def plot_function(func, x, root, steps, method):
     plt.figure(figsize=(10, 6))
@@ -17,8 +27,8 @@ def plot_function(func, x, root, steps, method):
         x_valid, y_valid = zip(*valid_points)
         plt.plot(x_valid, y_valid, label='f(x)')
     
-    plt.axhline(y=0, color='r', linestyle='--')
-    plt.scatter([root], [0], color='g', s=100, label='Root')
+    plt.axhline(y=0, color='r', linestyle='--',label='x轴')
+    plt.scatter([root], [0], color='g', s=100, label='根')
     
     if method == 'Bisection':
         for i, step in enumerate(steps):
@@ -65,7 +75,7 @@ def plot_function(func, x, root, steps, method):
     
     
     plt.legend()
-    plt.title(f'{method} Method')
+    plt.title(f'{dic[method]}图像')
     plt.xlabel('x')
     plt.ylabel('f(x)')
     
