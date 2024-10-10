@@ -29,7 +29,7 @@ def index():
                 x = np.linspace(a-1, b+1, 100)
                 template = 'result_bisection.html'
             elif method == 'aitken':
-                x0 = float(request.form['x0'])
+                x0 = float(request.form['aitken_x0'])
                 root, steps = aitken_method(lambda x: f(x, expr), x0, tol)
                 x = np.linspace(x0-1, x0+1, 100) if root is None else np.linspace(min(x0, root)-1, max(x0, root)+1, 100)
                 template = 'result_aitken.html'
@@ -72,4 +72,4 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run("10.171.149.10",debug=True,port=5516)
+    app.run(debug=True,port=5516)

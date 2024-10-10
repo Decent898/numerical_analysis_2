@@ -1,35 +1,25 @@
-import math
-
-def get_decimal_places(tol):
-    decimal_places = max(0, -int(math.log10(tol))) + 2
-    return decimal_places
-
 def aitken_method(func, x0, tol, max_iter=100):
     steps = []
-
-    decimal_places = get_decimal_places(tol)
-    
     for i in range(max_iter):
         x1 = func(x0)
         x2 = func(x1)
         
-        x1 = round(x1, decimal_places)
-        x2 = round(x2, decimal_places)
-        
         denominator = x2 - 2 * x1 + x0
-        denominator = round(denominator, decimal_places)
+        if abs(denominator) < 1e-10:  # 防止除以零
+            return x0, steps  # 返回x0，因为方法无法进一步加速
         
-        if abs(denominator) < 1e-10:
-            return round(x2, decimal_places), steps
+        # Aitken 加速步骤
+        x_new = x0 - (x1 - x0)**2 / denominator
         
-        x_new = (x0 * x2 - x1 ** 2) / denominator
-        x_new = round(x_new, decimal_places)
+        steps.append((x0, x1, x2, x_new))  # 保存每一步的值
+        print(f"Step {i+1}: {steps[-1]}")
         
-        steps.append((round(x0, decimal_places), x1, x2, x_new))
-        
+        # 收敛判定：使用新点和当前点之间的差异
         if abs(x_new - x0) < tol:
             return x_new, steps
         
+        # 更新 x0 为新点以进入下一步
         x0 = x_new
-    
-    raise ValueError("收敛失败")
+
+    # 若达到最大迭代次数仍未收敛，抛出错误
+    raise ValueError(f"Method failed to converge within {max_iter} iterations.")

@@ -52,17 +52,17 @@
                     {% for step in steps %}
                     <tr>
                         <td class="border px-4 py-2">{{ loop.index }}</td>
-                        <td class="border px-4 py-2" title="{{ step[0] }}">{{step[0] }}</td>
-                        <td class="border px-4 py-2" title="{{ step[1] }}">{{step[1] }}</td>
-                        <td class="border px-4 py-2" title="{{ step[2] }}">{{step[2] }}</td>
+                        <td class="border px-4 py-2" title="{{ step[0] }}">{{'%.8f' % step[0] }}</td>
+                        <td class="border px-4 py-2" title="{{ step[1] }}">{{'%.8f' % step[1] }}</td>
+                        <td class="border px-4 py-2" title="{{ step[2] }}">{{'%.8f' % step[2] }}</td>
                         <!-- <td class="border px-4 py-2" title="{{ step[3] }}">{{ '%.8f' % step[3] }}</td> -->
                         <!-- 判断f大于0小于0情况： -->
                         {% if step[3] > 0 %}
-                        <td class="border px-4 py-2" title="{{ step[3] }}">f({{ step[2] }}) > 0</td>
+                        <td class="border px-4 py-2" title="{{ step[3] }}">f({{'%.8f' % step[2] }}) > 0</td>
                         {% elif step[3] < 0 %}
-                        <td class="border px-4 py-2" title="{{ step[3] }}">f({{ step[2] }}) < 0</td>
+                        <td class="border px-4 py-2" title="{{ step[3] }}">f({{'%.8f' % step[2] }}) < 0</td>
                         {% else %}
-                        <td class="border px-4 py-2" title="{{ step[3] }}">f({{ step[2] }}) = 0</td>
+                        <td class="border px-4 py-2" title="{{ step[3] }}">f({{'%.8f' % step[2] }}) = 0</td>
                         {% endif %}
 
                     </tr>

@@ -39,9 +39,9 @@
                     {% for step in steps %}
                     <tr>
                         <td class="border px-4 py-2">{{ loop.index }}</td>
-                        <td class="border px-4 py-2" title="{{ step[0] }}">{{ '%.8f' % step[0] }}</td>
                         <td class="border px-4 py-2" title="{{ step[1] }}">{{ '%.8f' % step[1] }}</td>
                         <td class="border px-4 py-2" title="{{ step[2] }}">{{ '%.8f' % step[2] }}</td>
+                        <td class="border px-4 py-2" title="{{ step[0] }}">{{ '%.8f' % step[0] }}</td>
                         <td class="border px-4 py-2" title="{{ step[3] }}">{{ '%.8f' % step[3] }}</td>
                     </tr>
                     {% endfor %}
