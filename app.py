@@ -25,30 +25,36 @@ def index():
             
             if method == 'bisection':
                 a, b = float(request.form['a']), float(request.form['b'])
-                root, steps = bisection_method(lambda x: f(x, expr), a, b, tol)
-                x = np.linspace(a-1, b+1, 100)
+                root, steps, x_min, x_max = bisection_method(lambda x: f(x, expr), a, b, tol)
+                # x = np.linspace(a-1, b+1, 100)
+                x= np.linspace(x_min-1,x_max+1, 100)
                 template = 'result_bisection.html'
             elif method == 'aitken':
                 x0 = float(request.form['aitken_x0'])
-                root, steps = aitken_method(lambda x: f(x, expr), x0, tol)
-                x = np.linspace(x0-1, x0+1, 100) if root is None else np.linspace(min(x0, root)-1, max(x0, root)+1, 100)
+                root, steps, x_min, x_max = aitken_method(lambda x: f(x, expr), x0, tol)
+                # x = np.linspace(x0-1, x0+1, 100) if root is None else np.linspace(min(x0, root)-1, max(x0, root)+1, 100)
+                x= np.linspace(x_min-1,x_max+1, 100)
                 template = 'result_aitken.html'
             elif method == 'newton':
                 x0 = float(request.form['x0'])
-                root, steps = newton_method(lambda x: f(x, expr), x0, tol)
-                x = np.linspace(x0-1, x0+1, 100) if root is None else np.linspace(min(x0, root)-1, max(x0, root)+1, 100)
+                # return (a + b) / 2, steps,[x_min, x_max]
+                # root, steps,x_min,x_max = newton_method(lambda x: f(x, expr), x0, tol)
+                root, steps, x_min, x_max = newton_method(lambda x: f(x, expr), x0, tol)
+                x = np.linspace(x_min-1,x_max+1, 100)
                 template = 'result_newton.html'
             elif method == 'secant':
                 x0, x1 = float(request.form['x0']), float(request.form['x1'])
-                root, steps = secant_method(lambda x: f(x, expr), x0, x1, tol)
-                x = np.linspace(min(x0, x1)-1, max(x0, x1)+1, 100)
+                root, steps, x_min, x_max = secant_method(lambda x: f(x, expr), x0, x1, tol)
+                # x = np.linspace(min(x0, x1)-1, max(x0, x1)+1, 100)
+                x= np.linspace(x_min-1,x_max+1, 100)
                 template = 'result_secant.html'
             else:
                 return render_template('error.html', message="无效方法选择。")
             
             if root is None:
                 return render_template('error.html', message="方法未能收敛。请输入不同的初值。")
-            
+            print(" min max",x_min,x_max)
+            print(x)
             parsed_expr = parse_expression(expr)
             latex_expr = parsed_expr.replace('**', '^')  # Replace Python's power operator with LaTeX's
             
@@ -72,4 +78,4 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True,port=5516)
+    app.run("10.171.149.10",debug=True,port=5516)

@@ -20,7 +20,7 @@
         <div class="p-8">
             <h1 class="text-2xl font-bold mb-4">求根结果</h1>
             <p class="mb-4">表达式:</p>
-            <p>\( {{ expression }} \)</p>
+            <p>\( {{ expression+"= x" }} \)</p>
             <br>
             <p class="mb-4">近似根: {{ root }}</p>
             <h2 class="text-xl font-semibold mb-2">步骤:</h2>
@@ -39,9 +39,9 @@
                     {% for step in steps %}
                     <tr>
                         <td class="border px-4 py-2">{{ loop.index }}</td>
+                        <td class="border px-4 py-2" title="{{ step[0] }}">{{ '%.8f' % step[0] }}</td>
                         <td class="border px-4 py-2" title="{{ step[1] }}">{{ '%.8f' % step[1] }}</td>
                         <td class="border px-4 py-2" title="{{ step[2] }}">{{ '%.8f' % step[2] }}</td>
-                        <td class="border px-4 py-2" title="{{ step[0] }}">{{ '%.8f' % step[0] }}</td>
                         <td class="border px-4 py-2" title="{{ step[3] }}">{{ '%.8f' % step[3] }}</td>
                     </tr>
                     {% endfor %}
@@ -69,30 +69,82 @@
 
     // 提取数据
     var functionPoints = chartData.function_points.map(point => ({ x: point.x, y: point.y }));
+    var yEqualsXPoints = chartData.y_equals_x.map(point => ({ x: point.x, y: point.y }));
     var rootPoint = chartData.root_point;
     var steps = chartData.steps;
 
     // 渲染 Chart.js 图表
     var ctx = document.getElementById('chart').getContext('2d');
+    var datasets = [
+        {
+            label: 'f(x)',
+            data: functionPoints,
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 2,
+            fill: false,
+            pointRadius: 0
+        },
+        {
+            label: 'y = x',
+            data: yEqualsXPoints,
+            borderColor: 'rgba(153, 102, 255, 1)',
+            borderWidth: 2,
+            borderDash: [5, 5], // 虚线样式
+            fill: false,
+            pointRadius: 0
+        },
+        {
+            label: '根',
+            data: [{ x: rootPoint.x, y: rootPoint.y }],
+            pointBackgroundColor: 'green',
+            pointRadius: 8,
+            showLine: false
+        }
+    ];
+
+    // 添加迭代步骤的数据集
+    console.log(steps);
+    steps.forEach((step, index) => {
+        // 映射点 (x_i, f(x_i)) 和 (x_i, x_i)
+        // console.log(step);
+        if (step.points && step.mappings) {
+            step.points.forEach((point, i) => {
+                // console.log(point);
+                // console.log(point);
+                // console.log(i);
+                // console.log(step.mappings[i].x);
+                // console.log(step.mappings[i].y);
+
+                datasets.push({
+                    label: `迭代 ${index + 1} - 点 ${i + 1}`,
+                    data: [{ x: point.x, y: point.y }, { x: step.mappings[i].x, y: step.mappings[i].y }],
+                    borderColor: 'rgba(255, 99, 132, 0.5)',
+                    borderWidth: 3,
+                    fill: false,
+                    showLine: true,
+                    pointRadius: 4,
+                    pointBackgroundColor: 'blue'
+                });
+            });
+        }
+
+        // 新的预测点
+        if (step.new_prediction) {
+            datasets.push({
+                label: `迭代 ${index + 1} - 新预测`,
+                data: [{ x: step.new_prediction.x, y: step.new_prediction.y }],
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderDash: [5, 5],
+                fill: false,
+                pointRadius: 0
+            });
+        }
+    });
+
     var chart = new Chart(ctx, {
         type: 'line',
         data: {
-            datasets: [
-                {
-                    label: 'f(x)',
-                    data: functionPoints,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 2,
-                    fill: false
-                },
-                {
-                    label: '根',
-                    data: [{ x: rootPoint.x, y: rootPoint.y }],
-                    pointBackgroundColor: 'green',
-                    pointRadius: 8,
-                    showLine: false
-                },
-            ]
+            datasets: datasets
         },
         options: {
             scales: {

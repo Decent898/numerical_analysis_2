@@ -5,9 +5,17 @@ def get_decimal_places(tol):
     # print("保留位数:", decimal_places)
     return decimal_places
 
+def update_limits(x, x_min, x_max):
+    if x < x_min:
+        x_min = x
+    if x > x_max:
+        x_max = x
+    return x_max, x_min
+        
 def bisection_method(func, a, b, tol, max_iter=100):
     steps = []
     fa, fb = func(a), func(b)
+    x_min, x_max = a, b
     
     if fa * fb > 0:
         raise ValueError(f"区间端点的函数值必须异号 此处 f(a)={fa} , f(b)={fb}")
@@ -33,6 +41,7 @@ def bisection_method(func, a, b, tol, max_iter=100):
         steps.append((
             a,b,c,fc
         ))
+        
 
         # 收敛判定
         if abs(b - a) < tol:
@@ -43,4 +52,4 @@ def bisection_method(func, a, b, tol, max_iter=100):
         else:
             a, fa = c, fc
     
-    return (a + b) / 2, steps
+    return (a + b) / 2, steps,x_min, x_max

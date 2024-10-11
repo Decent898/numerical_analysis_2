@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 import plotly.io as pio
 import numpy as np
 import json
+
 # 中文支持
 plt.rcParams['font.sans-serif'] = ['SimHei']
 plt.rcParams['axes.unicode_minus'] = False
@@ -18,10 +19,20 @@ dic = {
     'Newton': '牛顿切线法'
 }
 
+def update_limit(x1, y_max, y_min):
+    if x1 > y_max:
+        y_max = x1
+    if x1 < y_min:
+        y_min = x1
+    return y_max, y_min
+
 def plot_function(func, x, root, steps, method):
-    plt.figure(figsize=(10, 6))
+    # plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10,10))
     y = [func(xi) for xi in x]
     valid_points = [(xi, yi) for xi, yi in zip(x, y) if yi is not None]
+    y_max=-114514
+    y_min=114514
     
     if valid_points:
         x_valid, y_valid = zip(*valid_points)
@@ -34,34 +45,44 @@ def plot_function(func, x, root, steps, method):
         for i, step in enumerate(steps):
             plt.plot([step[0], step[1]], [0, 0], 'bo-', alpha=0.3)
             plt.plot([step[2]], [step[3]], 'ro', alpha=0.5)
+            y_max,y_min=update_limit(step[3], y_max, y_min)
+            plt.annotate(f'Iter {i+1}', (step[2], step[3]), xytext=(5, 5),
+                         textcoords='offset points', fontsize=8)
     
     elif method == 'Aitken':
+        plt.plot(x, x, label='y=x', color='purple', linestyle='--')
         for i, step in enumerate(steps):
             x0, x1, x2, x_new = step
-            fx0, fx1, fx2 = func(x0), func(x1), func(x2)
+            y_max,y_min=update_limit(x1, y_max, y_min)
+            y_max,y_min=update_limit(x2, y_max, y_min)
+            # fx0, fx1, fx2 = func(x0), func(x1), func(x2)
             
-            # Plot the three points
-            plt.scatter([x0, x1, x2], [fx0, fx1, fx2], color='blue', s=50)
-            plt.plot([x0, x1, x2], [fx0, fx1, fx2], 'b--', alpha=0.5)
+            # 绘制当前迭代的三个点 (x0, f(x0)), (x1, f(x1)), (x2, f(x2))
+            plt.scatter([x0, x1], [x1, x2], color='blue', s=50)
+            plt.scatter([x1], [x1], color='red', s=50, alpha=0.7)
+            plt.plot([x0, x1, x1], [x1, x1, x2], 'b--', alpha=0.5) # 绘制 (x0, f(x0)), (x1, f(x1)), (x2, f(x2)) 的连线
+            plt.plot([x0, x1], [x1, x2], 'b', alpha=0.5) # 绘制 (x1, f(x1)), (x2, f(x2)) 的连线
             
-            # Fit a quadratic function through the three points
-            coeffs = np.polyfit([x0, x1, x2], [fx0, fx1, fx2], 2)
-            x_quad = np.linspace(min(x0, x1, x2) - 0.5, max(x0, x1, x2) + 0.5, 100)
-            y_quad = np.polyval(coeffs, x_quad)
-            plt.plot(x_quad, y_quad, 'g-', alpha=0.3)
+            # # 绘制 (x0, x0), (x1, x1), (x2, x2) 与函数 f(x) 的对应关系
+            # plt.scatter([x0], [x0], color='red', s=50, alpha=0.7) # 绘制 (x1, x1) 与函数 f(x) 的对应关系
+            # plt.scatter([x2], [x2], color='red', s=50, alpha=0.7)
+            # plt.plot([x0, x0], [fx0, x0], 'r--', alpha=0.5)  # 映射线
+            # plt.plot([x1, x1], [fx1, x1], 'r--', alpha=0.5)  # 映射线
+            # plt.plot([x2, x2], [fx2, x2], 'r--', alpha=0.5)  # 映射线
             
-            # Plot the new prediction
+            # # 绘制加速后新预测的点
             fx_new = func(x_new)
-            plt.scatter([x_new], [fx_new], color='red', s=50)
-            plt.plot([x2, x_new], [fx2, fx_new], 'r--', alpha=0.5)
+            # plt.scatter([x_new], [fx_new], color='orange', s=50, label=f'Iter {i+1}' if i == 0 else "", alpha=0.7)
+            # plt.plot([x2, x_new], [fx2, fx_new], 'r--', alpha=0.5)
             
-            # Add iteration number
+            # 添加迭代标注
             plt.annotate(f'Iter {i+1}', (x_new, fx_new), xytext=(5, 5), 
-                         textcoords='offset points', fontsize=8)
+                            textcoords='offset points', fontsize=8)
             
     elif method == 'Newton':
         for i, step in enumerate(steps[:-1]):
             x0, fx0, dfx0, x1 = step
+            y_max,y_min=update_limit(fx0, y_max, y_min)
             x_tangent = np.linspace(x0 - 0.5, x0 + 0.5, 100)
             y_tangent = fx0 + dfx0 * (x_tangent - x0)
             plt.plot(x_tangent, y_tangent, 'g--', alpha=0.5)
@@ -70,6 +91,7 @@ def plot_function(func, x, root, steps, method):
     elif method == 'Secant':
         for i, step in enumerate(steps[:-1]):
             x0, x1, fx0, fx1, x2 = step
+            y_max,y_min=update_limit(fx0, y_max, y_min)
             plt.plot([x0, x1], [fx0, fx1], 'g--', alpha=0.5)
             plt.plot([x1, x2], [fx1, 0], 'ro-', alpha=0.5)
     
@@ -78,6 +100,15 @@ def plot_function(func, x, root, steps, method):
     plt.title(f'{dic[method]}图像')
     plt.xlabel('x')
     plt.ylabel('f(x)')
+    
+    ##设置比例为1:1
+    if method == 'Aitken':
+        plt.gca().set_aspect('equal', adjustable='box')
+    ## y轴不超过func(steps[-1][0])
+    plt.ylim(y_min-1, y_max+1)
+    # plt.ylim(x.min() - 1, x.max() + 1)
+    print(y_min,y_max)  
+    
     
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
@@ -111,6 +142,9 @@ def plot_function_interactive(func, x, root, steps, method):
             })
 
     elif method == 'Aitken':
+        # 生成 y=x 曲线的点
+        chart_data['y_equals_x'] = [{'x': xi, 'y': xi} for xi in x]
+        
         for i, step in enumerate(steps):
             x0, x1, x2, x_new = step
             fx0, fx1, fx2 = func(x0), func(x1), func(x2)
@@ -120,9 +154,15 @@ def plot_function_interactive(func, x, root, steps, method):
                 'points': [
                     {'x': x0, 'y': fx0},
                     {'x': x1, 'y': fx1},
-                    {'x': x2, 'y': fx2},
-                    {'x': x_new, 'y': fx_new}
-                ]
+                    {'x': x2, 'y': fx2}
+                ],
+                'mappings': [
+                    {'x': x0, 'y': x0},  # (x0, x0) 映射点
+                    {'x': x1, 'y': x1},  # (x1, x1) 映射点
+                    {'x': x2, 'y': x2}   # (x2, x2) 映射点
+                    
+                ],
+                'new_prediction': {'x': x_new, 'y': fx_new}  # 新预测点
             })
 
     if method == 'Newton':
