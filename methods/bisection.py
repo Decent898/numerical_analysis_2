@@ -37,13 +37,10 @@ def bisection_method(func, a, b, tol, max_iter=100):
         fc = func(c)
         # fc= round(fc, decimal_places)
         
-        # 指定的小数位数
         steps.append((
             a,b,c,fc
         ))
-        
 
-        # 收敛判定
         if abs(b - a) < tol:
             break
         

@@ -7,7 +7,7 @@
     <title>求根结果</title>
     <!-- Tailwind CSS -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <!-- MathJax 数学公式渲染 -->
+    <!-- MathJax -->
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -107,38 +107,54 @@
     steps.forEach((step, index) => {
         // 映射点 (x_i, f(x_i)) 和 (x_i, x_i)
         // console.log(step);
-        if (step.points && step.mappings) {
-            step.points.forEach((point, i) => {
-                // console.log(point);
-                // console.log(point);
-                // console.log(i);
-                // console.log(step.mappings[i].x);
-                // console.log(step.mappings[i].y);
-
-                datasets.push({
-                    label: `迭代 ${index + 1} - 点 ${i + 1}`,
-                    data: [{ x: point.x, y: point.y }, { x: step.mappings[i].x, y: step.mappings[i].y }],
-                    borderColor: 'rgba(255, 99, 132, 0.5)',
-                    borderWidth: 3,
-                    fill: false,
-                    showLine: true,
-                    pointRadius: 4,
-                    pointBackgroundColor: 'blue'
-                });
+        if (step.points) {
+            point = step.points;
+            datasets.push({
+                label: `迭代${index + 1}点`,
+                data: [{ x: point[0].x, y: point[0].y }, { x: point[1].x, y: point[1].y }, { x: point[2].x, y: point[2].y }],
+                borderColor: 'rgba(255, 99, 132, 0.5)',
+                borderDash: [5, 5], // 虚线样式
+                borderWidth: 3,
+                fill: false,
+                showLine: true,
+                pointRadius: 4,
+                pointBackgroundColor: 'blue'
+            });
+            datasets.push({
+                label: `迭代 ${index + 1}割线`,
+                data: [{ x: point[0].x, y: point[0].y },{ x: point[2].x, y: point[2].y }],
+                borderColor: 'rgba(255, 99, 132)',
+                borderWidth: 3,
+                fill: false,
+                showLine: true,
+                pointRadius: 0
+            });
+            datasets.push({
+                label: `迭代 ${index + 1}目标点`,
+                data: [{ x: step.new_prediction.x, y: step.new_prediction.y }],
+                borderColor: 'rgba(255, 99, 132)',
+                borderWidth: 3,
+                fill: false,
+            })
+            datasets.push({
+                label: `迭代 ${index + 1}垂线`,
+                data: [{ x: step.new_prediction.x, y: step.new_prediction.x },{ x: step.new_prediction.x, y: step.new_prediction.y }],
+                pointRadius: 4,
+                pointBackgroundColor: 'blue'
             });
         }
 
         // 新的预测点
-        if (step.new_prediction) {
-            datasets.push({
-                label: `迭代 ${index + 1} - 新预测`,
-                data: [{ x: step.new_prediction.x, y: step.new_prediction.y }],
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderDash: [5, 5],
-                fill: false,
-                pointRadius: 0
-            });
-        }
+        // if (step.new_prediction) {
+        //     datasets.push({
+        //         label: `迭代 ${index + 1} - 新预测`,
+        //         data: [{ x: step.new_prediction.x, y: step.new_prediction.y }],
+        //         borderColor: 'rgba(255, 99, 132, 1)',
+        //         borderDash: [5, 5],
+        //         fill: false,
+        //         pointRadius: 0
+        //     });
+        // }
     });
 
     var chart = new Chart(ctx, {

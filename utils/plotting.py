@@ -3,8 +3,6 @@ import numpy as np
 import io
 import base64
 
-import plotly.graph_objects as go
-import plotly.io as pio
 import numpy as np
 import json
 
@@ -57,11 +55,11 @@ def plot_function(func, x, root, steps, method):
             y_max,y_min=update_limit(x2, y_max, y_min)
             # fx0, fx1, fx2 = func(x0), func(x1), func(x2)
             
-            # 绘制当前迭代的三个点 (x0, f(x0)), (x1, f(x1)), (x2, f(x2))
+            # 当前三个点 (x0, f(x0)), (x1, f(x1)), (x2, f(x2))
             plt.scatter([x0, x1], [x1, x2], color='blue', s=50)
             plt.scatter([x1], [x1], color='red', s=50, alpha=0.7)
-            plt.plot([x0, x1, x1], [x1, x1, x2], 'b--', alpha=0.5) # 绘制 (x0, f(x0)), (x1, f(x1)), (x2, f(x2)) 的连线
-            plt.plot([x0, x1], [x1, x2], 'b', alpha=0.5) # 绘制 (x1, f(x1)), (x2, f(x2)) 的连线
+            plt.plot([x0, x1, x1], [x1, x1, x2], 'b--', alpha=0.5) # (x0, f(x0)), (x1, f(x1)), (x2, f(x2)) 连线
+            plt.plot([x0, x1], [x1, x2], 'b', alpha=0.5) # (x1, f(x1)), (x2, f(x2)) 连线
             
             # # 绘制 (x0, x0), (x1, x1), (x2, x2) 与函数 f(x) 的对应关系
             # plt.scatter([x0], [x0], color='red', s=50, alpha=0.7) # 绘制 (x1, x1) 与函数 f(x) 的对应关系
@@ -101,7 +99,6 @@ def plot_function(func, x, root, steps, method):
     plt.xlabel('x')
     plt.ylabel('f(x)')
     
-    ##设置比例为1:1
     if method == 'Aitken':
         plt.gca().set_aspect('equal', adjustable='box')
     ## y轴不超过func(steps[-1][0])
@@ -120,82 +117,67 @@ def plot_function(func, x, root, steps, method):
 
 
 def plot_function_interactive(func, x, root, steps, method):
-    # 创建数据结构，用于存储各个点
     chart_data = {
-        'function_points': [],  # 函数曲线的点
-        'root_point': {'x': root, 'y': 0},  # 根点
-        'steps': []  # 各个迭代步骤的点
+        'function_points': [], 
+        'root_point': {'x': root, 'y': 0}, 
+        'steps': []
     }
 
-    # 生成函数曲线的点
     y = [func(xi) for xi in x]
     chart_data['function_points'] = [{'x': xi, 'y': yi} for xi, yi in zip(x, y)]
 
-    # 根据不同方法记录步骤
     if method == 'Bisection':
         for i, step in enumerate(steps):
             chart_data['steps'].append({
                 'iter': i + 1,
-                'a': {'x': step[0], 'y': 0},  # 区间左端点
-                'b': {'x': step[1], 'y': 0},  # 区间右端点
-                'mid': {'x': step[2], 'y': step[3]}  # 中点
+                'a': {'x': step[0], 'y': 0}, 
+                'b': {'x': step[1], 'y': 0},
+                'mid': {'x': step[2], 'y': step[3]}
             })
 
     elif method == 'Aitken':
-        # 生成 y=x 曲线的点
         chart_data['y_equals_x'] = [{'x': xi, 'y': xi} for xi in x]
         
         for i, step in enumerate(steps):
             x0, x1, x2, x_new = step
-            fx0, fx1, fx2 = func(x0), func(x1), func(x2)
+            # fx0, fx1, fx2 = func(x0), func(x1), func(x2)
             fx_new = func(x_new)
             chart_data['steps'].append({
                 'iter': i + 1,
                 'points': [
-                    {'x': x0, 'y': fx0},
-                    {'x': x1, 'y': fx1},
-                    {'x': x2, 'y': fx2}
+                    {'x': x0, 'y': x1},
+                    {'x': x1, 'y': x1},
+                    {'x': x1, 'y': x2}
                 ],
-                'mappings': [
-                    {'x': x0, 'y': x0},  # (x0, x0) 映射点
-                    {'x': x1, 'y': x1},  # (x1, x1) 映射点
-                    {'x': x2, 'y': x2}   # (x2, x2) 映射点
-                    
-                ],
-                'new_prediction': {'x': x_new, 'y': fx_new}  # 新预测点
+                'new_prediction': {'x': x_new, 'y': fx_new} 
             })
 
     if method == 'Newton':
         for i, step in enumerate(steps[:-1]):
             x0, fx0, dfx0, x1 = step
 
-            # 计算切线与x轴的交点
             x_intersection = x0 - fx0 / dfx0
 
-            # 生成切线的点：从x0到x轴的交点
             x_tangent = np.linspace(x0, x_intersection, 100)
             y_tangent = fx0 + dfx0 * (x_tangent - x0)
 
-            # 保存每次迭代的切线和根的近似
             chart_data['steps'].append({
                 'iter': i + 1,
                 'tangent': [{'x': xt, 'y': yt} for xt, yt in zip(x_tangent, y_tangent)],
-                'root_approx': {'x': x1, 'y': 0}  # 每次迭代得到的近似根
+                'root_approx': {'x': x1, 'y': 0} 
             })
 
     if method == 'Secant':
         for i, step in enumerate(steps[:-1]):
             x0, x1, fx0, fx1, x2 = step
             
-            # 弦线：通过 x0 和 x1
             chart_data['steps'].append({
                 'iter': i + 1,
-                'secant': [{'x': x0, 'y': fx0}, {'x': x1, 'y': fx1}],  # 弦线
-                'root_approx': {'x': x2, 'y': 0}  # 弦线与x轴交点，即近似根
+                'secant': [{'x': x0, 'y': fx0}, {'x': x1, 'y': fx1}], 
+                'root_approx': {'x': x2, 'y': 0}
             })
 
 
-    # 转换为 JSON 格式
     graph_json = json.dumps(chart_data)
 
     return graph_json
